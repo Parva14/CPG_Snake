@@ -129,24 +129,106 @@ class joystickController(object):
 	def callback(self, msg):
 		
 	
-		print(msg.linear.x)
-		print(msg.linear.z)
+		# print(msg.linear.x)
+		# print(msg.linear.z)
 
 		
 
 
-		if(msg.linear.x == 0.5):
-			self.cpg['direction']= self.cpg['forward']
-			print("forward")
-		if(msg.linear.x == -0.5):
-			self.cpg['direction']= self.cpg['backward']
-			print("backward")
-		if(msg.linear.z == 0.5):
-			self.cpg['direction']= self.cpg['leftturn']
-			print("left")
-		if(msg.linear.z == -0.5):
-			self.cpg['direction']= self.cpg['rightturn']
-			print("right")		
+		# if(msg.linear.x > 0.1 and msg.angular.z > 0.1):
+		# 	self.cntr = self.cntr+1
+		# 	if(self.cntr%4 == 0):
+		# 		self.cpg['direction']= self.cpg['forward']
+		# 		print("forward")
+		# 	else: 
+		# 		self.cpg['direction']= self.cpg['leftturn']
+		# 		print("left")	
+
+		# if(msg.linear.x > 0.1 and msg.angular.z < 0.1):
+		# 	self.cntr = self.cntr+1
+		# 	if(self.cntr%4 == 0):
+		# 		self.cpg['direction']= self.cpg['forward']
+		# 		print("forward")
+		# 	else: 
+		# 		self.cpg['direction']= self.cpg['rightturn']
+
+		# 		print("right")	
+
+		# if(msg.linear.x < 0.1 and msg.angular.z > 0.1):
+		# 	self.cntr = self.cntr+1
+		# 	if(self.cntr%4 == 0):
+		# 		self.cpg['direction']= self.cpg['backward']
+		# 		print("backward")
+		# 	else: 
+		# 		self.cpg['direction']= self.cpg['leftturn']
+		# 		print("left")
+
+		# if(msg.linear.x < 0.1 and msg.angular.z < 0.1):
+		# 	self.cntr = self.cntr+1
+		# 	if(self.cntr%4 == 0):
+		# 		self.cpg['direction']= self.cpg['backward']
+		# 		print("backward")
+		# 	else: 
+		# 		self.cpg['direction']= self.cpg['rightturn']
+		# 		print("right")		
+
+		# if(msg.linear.x > 0.1  ):
+		# 	self.cpg['direction']= self.cpg['forward']
+		# 	print("forward")	
+
+		if(msg.linear.x == -2):
+
+				self.cpg['direction']= self.cpg['rightturn']
+		 		print("backward")
+
+		if(msg.angular.z < 0.2 and msg.angular.z > -0.2):
+
+			if(msg.linear.x > 0.09):
+
+				self.cpg['direction']= self.cpg['forward']
+		 		print("forward")
+
+		 	# if(msg.linear.x < 0):
+
+				# self.cpg['direction']= self.cpg['backward']
+		 	# 	print("backward")	
+
+		if(msg.angular.z > 0.25 or msg.angular.z < -0.25):
+
+			if(msg.angular.z > 0.25):
+
+				self.cpg['direction']= self.cpg['leftturn']
+
+				print("left")
+
+			if(msg.angular.z < -0.25):
+
+				self.cpg['direction']= self.cpg['rightturn']
+				print("right")
+
+		 											
+
+		
+
+		# elif(msg.linear.x < 0.1):
+		# 	self.cpg['direction']= self.cpg['backward']
+		# 	print("backward")
+
+		# if(msg.linear.x > 0.1  ):
+		# 	self.cpg['direction']= self.cpg['forward']
+		# 	print("forward")
+		# elif(msg.angular.z > 0.1):
+		# 	self.cpg['direction']= self.cpg['leftturn']
+		# 	print("left")
+		# elif(msg.angular.z < 0.1):
+		# 	self.cpg['direction']= self.cpg['rightturn']
+		# 	print("right")	
+		
+		# elif(msg.linear.x < 0.1):
+		# 	self.cpg['direction']= self.cpg['backward']
+		# 	print("backward")
+		
+				
 		
 
 		#self.cpg['direction']= self.cpg['forward']
@@ -277,10 +359,11 @@ if __name__ == '__main__':
 	T = 600
 	dt = 0.02
 	nIter = round(T/dt)
+	cntr = 0
 
 	cpg = {
     'initLength': 250,
-    'w_y': 6.0,
+    'w_y': 30.0,
     'bodyHeight':0.13,
     'bodyHeightReached':False,
     'zDist':0,
@@ -342,6 +425,7 @@ if __name__ == '__main__':
 	controller.cmd = tools.CommandStruct()
 	controller.dt = dt
 	controller.nIter = nIter
+	controller.cntr = cntr
 
 	controller.t = 0
 	#rospy.init_node('cmd_vel_listener', anonymous=False)
