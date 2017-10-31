@@ -127,113 +127,41 @@ class joystickController(object):
 		
 
 	def callback(self, msg):
-		
-	
-		# print(msg.linear.x)
-		# print(msg.linear.z)
-
-		
 
 
-		# if(msg.linear.x > 0.1 and msg.angular.z > 0.1):
-		# 	self.cntr = self.cntr+1
-		# 	if(self.cntr%4 == 0):
-		# 		self.cpg['direction']= self.cpg['forward']
-		# 		print("forward")
-		# 	else: 
-		# 		self.cpg['direction']= self.cpg['leftturn']
-		# 		print("left")	
+		# if(msg.angular.x == 0 and msg.angular.z == 0):
+		# 	self.cpg['move'] = False
+		# else:
+		# 	self.cpg['move'] = True	
 
-		# if(msg.linear.x > 0.1 and msg.angular.z < 0.1):
-		# 	self.cntr = self.cntr+1
-		# 	if(self.cntr%4 == 0):
-		# 		self.cpg['direction']= self.cpg['forward']
-		# 		print("forward")
-		# 	else: 
-		# 		self.cpg['direction']= self.cpg['rightturn']
 
-		# 		print("right")	
-
-		# if(msg.linear.x < 0.1 and msg.angular.z > 0.1):
-		# 	self.cntr = self.cntr+1
-		# 	if(self.cntr%4 == 0):
-		# 		self.cpg['direction']= self.cpg['backward']
-		# 		print("backward")
-		# 	else: 
-		# 		self.cpg['direction']= self.cpg['leftturn']
-		# 		print("left")
-
-		# if(msg.linear.x < 0.1 and msg.angular.z < 0.1):
-		# 	self.cntr = self.cntr+1
-		# 	if(self.cntr%4 == 0):
-		# 		self.cpg['direction']= self.cpg['backward']
-		# 		print("backward")
-		# 	else: 
-		# 		self.cpg['direction']= self.cpg['rightturn']
-		# 		print("right")		
-
-		# if(msg.linear.x > 0.1  ):
-		# 	self.cpg['direction']= self.cpg['forward']
-		# 	print("forward")	
-
-		if(msg.linear.x == -2):
-
-				self.cpg['direction']= self.cpg['rightturn']
-		 		print("backward")
-
-		if(msg.angular.z < 0.2 and msg.angular.z > -0.2):
+		if(msg.angular.z < 0.040 and msg.angular.z > -0.124):
 
 			if(msg.linear.x > 0.09):
 
 				self.cpg['direction']= self.cpg['forward']
 		 		print("forward")
 
-		 	# if(msg.linear.x < 0):
+		 	if(msg.linear.x == -2):
 
-				# self.cpg['direction']= self.cpg['backward']
-		 	# 	print("backward")	
+				self.cpg['direction']= self.cpg['backward']
+		 		print("backward")	
 
-		if(msg.angular.z > 0.25 or msg.angular.z < -0.25):
+		if(msg.angular.z > 0.040 or msg.angular.z < -0.124):
 
-			if(msg.angular.z > 0.25):
+			if(msg.angular.z > 0.040):
 
 				self.cpg['direction']= self.cpg['leftturn']
-
 				print("left")
 
-			if(msg.angular.z < -0.25):
+			if(msg.angular.z < -0.124):
 
 				self.cpg['direction']= self.cpg['rightturn']
 				print("right")
 
-		 											
 
-		
 
-		# elif(msg.linear.x < 0.1):
-		# 	self.cpg['direction']= self.cpg['backward']
-		# 	print("backward")
 
-		# if(msg.linear.x > 0.1  ):
-		# 	self.cpg['direction']= self.cpg['forward']
-		# 	print("forward")
-		# elif(msg.angular.z > 0.1):
-		# 	self.cpg['direction']= self.cpg['leftturn']
-		# 	print("left")
-		# elif(msg.angular.z < 0.1):
-		# 	self.cpg['direction']= self.cpg['rightturn']
-		# 	print("right")	
-		
-		# elif(msg.linear.x < 0.1):
-		# 	self.cpg['direction']= self.cpg['backward']
-		# 	print("backward")
-		
-				
-		
-
-		#self.cpg['direction']= self.cpg['forward']
-
-		
 		self.cpg = CPGgs(self.cpg, self.t, self.dt)
 		self.t += 1
 		self.cpg['feetLog'].append(self.cpg['feetTemp'])
@@ -262,94 +190,7 @@ class joystickController(object):
 		pub['L'+'4'+'_'+'3'].publish(self.cmd.position[0][17])
 
 
-		#cpg['direction']= cpg['backward']
 
-		###cmd.torque = gravComp(smk, cpg['legs'], cpg['gravVec'])
-
-		#snakeMonster.set(cmd);
-		#snakeMonster.setAngles(self.cmd.position[0])
-		#snakeMonster.setTorques(cmd.torque)
-
-
-	# def listener():
-	# 	rospy.init_node('cmd_vel_listener')
-	# 	rospy.Subscriber("/cmd_vel", Twist, callback)
-	# 	rospy.spin()
-
-
-# for t in range(nIter):
-# 	tStart = time.perf_counter()
-
-# 	if t == cpg['initLength']:
-# 		print('Snake Monster is ready!')
-# 		print('Begin walking')
-
-# 	## Joystick stuffs - Exit Button
-# 	if joy.pressed[2]:
-# 		resetSnakeMonster()
-# 		print('Reset.\n')
-# 		print('Exiting at t = {}\n'.format(t))
-# 		break
-
-# 	if joy.pressed[1]:
-# 		print('Exiting at t = {}\n'.format(t))
-# 		break
-
-
-	
-
-
-
-
-	# listener()
-	
-	##Get pose/gravity vector
-	# fbk.getNextFeedback()
-	# CF.update(fbk)
-	#cpg['pose']= copy(CF.R)
-	
-	# TEMPORARY print
-	'''
-	currentOrientation = decomposeSO3(cpg['pose'])
-	if cnt == 0 and t > 0:
-		print(currentOrientation, cpg['theta2'])
-	cnt = (cnt + 1) % 50
-'''
-
-	#cpg['gravVec']= np.linalg.lstsq(cpg['pose'][:3, :3], [[0],[0],[-1]])[0]
-	#cpg['poseLog'].append(cpg['pose'][:3, :3])
-
-	# Get leg positions
-
-	#realLegs = snakeMonster.getAngles()[:18]
-	#cpg['realLegPositions']= smk.getLegPositions(realLegs)
-
-
-	# Apply CPG
-
-	'''
-	if t >= cpg['initLength']and cpgJoy:
-		if any([c != 0 for c in joy.channel[:2]]):
-			cpg['move']= True
-			if joy.channel(2) > 0:
-				cpg['direction']= cpg['forward']
-			elif joy.channel(2) < 0:
-				cpg['direction']= cpg['backward']
-			elif joy.channel(1) > 0:
-				cpg['direction']= cpg['rightturn']
-			elif joy.channel(1) < 0:
-				cpg['direction']= cpg['leftturn']
-		else:
-			cpg['move']= false
-	'''
-	#cpg['requestedLegPositions']= smk.getLegPositions(cpg['legs'])
-	
-
-	
-	
-	
-	#joy.running = False
-	# pause('Program completed')
 
 if __name__ == '__main__':
 	
@@ -429,7 +270,7 @@ if __name__ == '__main__':
 
 	controller.t = 0
 	#rospy.init_node('cmd_vel_listener', anonymous=False)
-	rospy.Subscriber("/cmd_vel", Twist, controller.callback,queue_size=10)
+	rospy.Subscriber("/cmd_vel", Twist, controller.callback,queue_size=4)
 	
 	#rospy.Rate(1/dt)
 
