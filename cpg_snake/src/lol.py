@@ -20,11 +20,13 @@ import tools
 #import roslib; roslib.load_manifest('snake_monster_ros')
 import rospy
 from geometry_msgs.msg import Twist
-# import SMCF
-# from SMCF.SMComplementaryFilter import feedbackStructure,decomposeSO3
-# import seatools.hexapod as hp
+import geometry_msgs.msg
+from nav_msgs.msg import Path
+import tf
+
 from Functions.Controller import Controller
 from Functions.CPGgs import CPGgs
+from tf.transformations import euler_from_quaternion, quaternion_from_euler
 
 def publish_commands( hz ):
 	pub={}
@@ -66,131 +68,253 @@ names = ['SA012', 'SA059', 'SA030',
 		'SA081', 'SA050', 'SA018',
 		'SA046', 'SA032', 'SA026',
 		'SA041', 'SA072', 'SA077']
-#HebiLookup = tools.HebiLookup
-# embed()
-# shoulders = names[::3]
-# imu = HebiLookup.getGroupFromNames(shoulders)
 
-#setupfunctions.setupSnakeMonster()
-
-#snakeMonster = HebiLookup.getGroupFromNames(names)
-
-# while imu.getNumModules() != 6:
-#     print('Found {} modules in shoulder group, {} in robot.'.format(imu.getNumModules(), snakeMonster.getNumModules()), end='  \r')
-#     imu = HebiLookup.getGroupFromNames(shoulders)
-# print('Found {} modules in shoulder group, {} in robot.'.format(imu.getNumModules(), snakeMonster.getNumModules()))
-# snakeData = setup.setupSnakeMonsterShoulderData()
-# smk = hp.HexapodKinematics()
-
-# fbk = feedbackStructure(imu)
-# gyroOffset, accelOffset = SMCF.calibrateOffsets(fbk)
-# #setup.setupSnakeMonster()
-
-# CF = SMCF.SMComplementaryFilter(accelOffset=accelOffset, gyroOffset=gyroOffset)
-# fbk.getNextFeedback()
-# CF.update(fbk)
-# time.sleep(0.02)
-# pose = []
-# while pose is None or not list(pose):
-#     fbk.getNextFeedback()
-#     CF.update(fbk)
-#     pose = copy(CF.R)
-
-
-# print('Setup complete!')
-
-
-
-
-
-
-### BILL TESTING (doesn't apss for now)
-#shoulders1          = list(range(0,18,3)) # joint IDs of the shoulders
-#shoulders2          = list(range(1,18,3)) # joint IDs of the second shoulder joints
-#elbows              = list(range(2,18,3)) # joint IDs of the elbow joints
-#cpg['legs'][0,shoulders1] = [-3.14/4, 3.14/4, 0, 0, 3.14/4, -3.14/4]; #% offset so that legs are more spread out
-#cpg['legs'][0,shoulders2] = [3.14/2, 3.14/2, 3.14/2, 3.14/2, 3.14/2, 3.14/2];
-#cpg['legs'][0,elbows] = [-3.14/2, -3.14/2, -3.14/2, -3.14/2, -3.14/2, -3.14/2];
-#cmd.position = cpg['legs']; #%FJLFJLKJSDLKFJLSKJFLKSJFL
-#snakeMonster.setAngles(cmd.position[0]);    
-#print(smk.getLegPositions(cpg['legs']))
-#J = cpg['smk'].getLegJacobians(cpg['legs'])
-#print('J')
-#print(J)
-#while True:
-	#asdf = 0
 
 class joystickController(object):
 	"""docstring for ClassName"""
 	def __init__(self, cpg):
 		self.cpg = copy(cpg)
+		self.listener = tf.TransformListener()      
+		
+		
+	#   self.plan = None
+		# rospy.Subscriber("/cmd_vel", Twist, self.callback,queue_size=4)
+		
+	
+	def planner(self, path):
+		self.path = path
+		# self.execute()
+		
+		# print("Hello")
+		#print(trans[0])
+
+		# print(path.pose.position.x)
+		# embed()
+		# diff_x = path.position.x - trans[0];
+		# print(diff_x)
+
+
+
+
 		
 
-	def callback(self, msg):
 
+	# def callback(self, msg):
+	#   if(msg.angular.z < 0.040 and msg.angular.z > -0.124):
 
-		# if(msg.angular.x == 0 and msg.angular.z == 0):
-		# 	self.cpg['move'] = False
-		# else:
-		# 	self.cpg['move'] = True	
+	#       if(msg.linear.x > 0.09):
 
+	#           self.cpg['direction']= self.cpg['forward']
+	#           print("forward")
 
-		if(msg.angular.z < 0.040 and msg.angular.z > -0.124):
+	#       if(msg.linear.x == -2):
 
-			if(msg.linear.x > 0.09):
+	#           self.cpg['direction']= self.cpg['backward']
+	#           print("backward")   
 
-				self.cpg['direction']= self.cpg['forward']
-		 		print("forward")
+	#   if(msg.angular.z > 0.040 or msg.angular.z < -0.124):
 
-		 	if(msg.linear.x == -2):
+	#       if(msg.angular.z > 0.040):
 
-				self.cpg['direction']= self.cpg['backward']
-		 		print("backward")	
+	#           self.cpg['direction']= self.cpg['leftturn']
+	#           print("left")
 
-		if(msg.angular.z > 0.040 or msg.angular.z < -0.124):
+	#       if(msg.angular.z < -0.124):
 
-			if(msg.angular.z > 0.040):
-
-				self.cpg['direction']= self.cpg['leftturn']
-				print("left")
-
-			if(msg.angular.z < -0.124):
-
-				self.cpg['direction']= self.cpg['rightturn']
-				print("right")
+	#           self.cpg['direction']= self.cpg['rightturn']
+	#           print("right")
 
 
 
 
-		self.cpg = CPGgs(self.cpg, self.t, self.dt)
-		self.t += 1
-		self.cpg['feetLog'].append(self.cpg['feetTemp'])
-		#cpg['planeLog'].append(cpg['planeTemp'])
+		# self.cpg = CPGgs(self.cpg, self.t, self.dt)
+		# self.t += 1
+		# self.cpg['feetLog'].append(self.cpg['feetTemp'])
+		# #cpg['planeLog'].append(cpg['planeTemp'])
 
-		# Command
-		self.cmd.position = self.cpg['legs']
+		# # Command
+		# self.cmd.position = self.cpg['legs']
 
-		pub['L'+'1'+'_'+'1'].publish(self.cmd.position[0][0])
-		pub['L'+'1'+'_'+'2'].publish(self.cmd.position[0][1])
-		pub['L'+'1'+'_'+'3'].publish(self.cmd.position[0][2])
-		pub['L'+'6'+'_'+'1'].publish(self.cmd.position[0][3])
-		pub['L'+'6'+'_'+'2'].publish(self.cmd.position[0][4])
-		pub['L'+'6'+'_'+'3'].publish(self.cmd.position[0][5])
-		pub['L'+'2'+'_'+'1'].publish(self.cmd.position[0][6])
-		pub['L'+'2'+'_'+'2'].publish(self.cmd.position[0][7])
-		pub['L'+'2'+'_'+'3'].publish(self.cmd.position[0][8])
-		pub['L'+'5'+'_'+'1'].publish(self.cmd.position[0][9])
-		pub['L'+'5'+'_'+'2'].publish(self.cmd.position[0][10])
-		pub['L'+'5'+'_'+'3'].publish(self.cmd.position[0][11])
-		pub['L'+'3'+'_'+'1'].publish(self.cmd.position[0][12])
-		pub['L'+'3'+'_'+'2'].publish(self.cmd.position[0][13])
-		pub['L'+'3'+'_'+'3'].publish(self.cmd.position[0][14])
-		pub['L'+'4'+'_'+'1'].publish(self.cmd.position[0][15])
-		pub['L'+'4'+'_'+'2'].publish(self.cmd.position[0][16])
-		pub['L'+'4'+'_'+'3'].publish(self.cmd.position[0][17])
+		# pub['L'+'1'+'_'+'1'].publish(self.cmd.position[0][0])
+		# pub['L'+'1'+'_'+'2'].publish(self.cmd.position[0][1])
+		# pub['L'+'1'+'_'+'3'].publish(self.cmd.position[0][2])
+		# pub['L'+'6'+'_'+'1'].publish(self.cmd.position[0][3])
+		# pub['L'+'6'+'_'+'2'].publish(self.cmd.position[0][4])
+		# pub['L'+'6'+'_'+'3'].publish(self.cmd.position[0][5])
+		# pub['L'+'2'+'_'+'1'].publish(self.cmd.position[0][6])
+		# pub['L'+'2'+'_'+'2'].publish(self.cmd.position[0][7])
+		# pub['L'+'2'+'_'+'3'].publish(self.cmd.position[0][8])
+		# pub['L'+'5'+'_'+'1'].publish(self.cmd.position[0][9])
+		# pub['L'+'5'+'_'+'2'].publish(self.cmd.position[0][10])
+		# pub['L'+'5'+'_'+'3'].publish(self.cmd.position[0][11])
+		# pub['L'+'3'+'_'+'1'].publish(self.cmd.position[0][12])
+		# pub['L'+'3'+'_'+'2'].publish(self.cmd.position[0][13])
+		# pub['L'+'3'+'_'+'3'].publish(self.cmd.position[0][14])
+		# pub['L'+'4'+'_'+'1'].publish(self.cmd.position[0][15])
+		# pub['L'+'4'+'_'+'2'].publish(self.cmd.position[0][16])
+		# pub['L'+'4'+'_'+'3'].publish(self.cmd.position[0][17])
+
+	def execute(self):
+		(trans,rot) = self.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+		(roll, pitch, yaw_c) = euler_from_quaternion (rot)
+		path = self.path
+		reached = False
+
+		i=0
+		
+		while(reached == False):
+
+			if((np.abs((path.poses[(len(path.poses)-1)].pose.position.x) - trans[0]) < 0.7) and (np.abs((path.poses[(len(path.poses)-1)].pose.position.y) - trans[1]) < 0.7)):
+
+				reached = True
+
+			else:
+
+				reached = False 
+
+			if(reached == True):
+
+				self.cpg['move']= False 
+				self.path = None 
+				path = None
+
+			else:
+			
+				self.cpg['move']= True  
+
+			(trans,rot) = self.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+			print(i)
+			print(len(path.poses))
+			print(np.abs((path.poses[(len(path.poses)-1)].pose.position.x) - trans[0])) 
+			print(reached)  
+
+			(trans,rot) = self.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+
+			if(i > (len(path.poses)-5)):
+					path.poses[i].pose.position.x = path.poses[(len(path.poses)-1)].pose.position.x
+					path.poses[i].pose.position.y = path.poses[(len(path.poses)-1)].pose.position.y
+
+			while((np.abs((path.poses[i+1].pose.position.x) - trans[0]) > 0.015) and (np.abs((path.poses[i+1].pose.position.y) - trans[1]) > 0.015)):
+
+				if(i > (len(path.poses)-5)):
+					path.poses[i].pose.position.x = path.poses[(len(path.poses)-1)].pose.position.x
+					path.poses[i].pose.position.y = path.poses[(len(path.poses)-1)].pose.position.y
+
+
+				(trans,rot) = self.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+				(roll, pitch, yaw_l) = euler_from_quaternion (rot)
+				yaw_c = -1*yaw_l
+				point = path.poses[i]
+				yaw_d = np.arctan2((path.poses[i+4].pose.position.x - trans[0]),(path.poses[i+4].pose.position.y - trans[1])) 
+				yaw_dd = (yaw_d* (180/np.pi))
+				diff = yaw_d - yaw_c
+
+
+				while((np.abs(diff)) > 0.1):
+
+					if(diff > 0.1):
+
+						self.cpg['direction']= self.cpg['rightturn']
+
+					else:
+
+						self.cpg['direction']= self.cpg['leftturn'] 
+
+					self.cpg = CPGgs(self.cpg, self.t, self.dt)
+					self.t += 1
+					self.cpg['feetLog'].append(self.cpg['feetTemp'])
+					#cpg['planeLog'].append(cpg['planeTemp'])
+
+					# Command
+					self.cmd.position = self.cpg['legs']
+
+					pub['L'+'1'+'_'+'1'].publish(self.cmd.position[0][0])
+					pub['L'+'1'+'_'+'2'].publish(self.cmd.position[0][1])
+					pub['L'+'1'+'_'+'3'].publish(self.cmd.position[0][2])
+					pub['L'+'6'+'_'+'1'].publish(self.cmd.position[0][3])
+					pub['L'+'6'+'_'+'2'].publish(self.cmd.position[0][4])
+					pub['L'+'6'+'_'+'3'].publish(self.cmd.position[0][5])
+					pub['L'+'2'+'_'+'1'].publish(self.cmd.position[0][6])
+					pub['L'+'2'+'_'+'2'].publish(self.cmd.position[0][7])
+					pub['L'+'2'+'_'+'3'].publish(self.cmd.position[0][8])
+					pub['L'+'5'+'_'+'1'].publish(self.cmd.position[0][9])
+					pub['L'+'5'+'_'+'2'].publish(self.cmd.position[0][10])
+					pub['L'+'5'+'_'+'3'].publish(self.cmd.position[0][11])
+					pub['L'+'3'+'_'+'1'].publish(self.cmd.position[0][12])
+					pub['L'+'3'+'_'+'2'].publish(self.cmd.position[0][13])
+					pub['L'+'3'+'_'+'3'].publish(self.cmd.position[0][14])
+					pub['L'+'4'+'_'+'1'].publish(self.cmd.position[0][15])
+					pub['L'+'4'+'_'+'2'].publish(self.cmd.position[0][16])
+					pub['L'+'4'+'_'+'3'].publish(self.cmd.position[0][17])
+
+					(trans,rot) = self.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+					(roll, pitch, yaw_l) = euler_from_quaternion (rot)
+					yaw_c = -1*yaw_l
+					diff = (yaw_d - yaw_c)
+
+				(trans,rot) = self.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+				(roll, pitch, yaw_l) = euler_from_quaternion (rot)
+				yaw_c = -1*yaw_l
+				diff = (yaw_d - yaw_c)  
+			
+				self.cpg['direction']= self.cpg['forward']  
+
+				self.cpg = CPGgs(self.cpg, self.t, self.dt)
+				self.t += 1
+				self.cpg['feetLog'].append(self.cpg['feetTemp'])
+				#cpg['planeLog'].append(cpg['planeTemp'])
+
+				# Command
+				self.cmd.position = self.cpg['legs']
+
+				pub['L'+'1'+'_'+'1'].publish(self.cmd.position[0][0])
+				pub['L'+'1'+'_'+'2'].publish(self.cmd.position[0][1])
+				pub['L'+'1'+'_'+'3'].publish(self.cmd.position[0][2])
+				pub['L'+'6'+'_'+'1'].publish(self.cmd.position[0][3])
+				pub['L'+'6'+'_'+'2'].publish(self.cmd.position[0][4])
+				pub['L'+'6'+'_'+'3'].publish(self.cmd.position[0][5])
+				pub['L'+'2'+'_'+'1'].publish(self.cmd.position[0][6])
+				pub['L'+'2'+'_'+'2'].publish(self.cmd.position[0][7])
+				pub['L'+'2'+'_'+'3'].publish(self.cmd.position[0][8])
+				pub['L'+'5'+'_'+'1'].publish(self.cmd.position[0][9])
+				pub['L'+'5'+'_'+'2'].publish(self.cmd.position[0][10])
+				pub['L'+'5'+'_'+'3'].publish(self.cmd.position[0][11])
+				pub['L'+'3'+'_'+'1'].publish(self.cmd.position[0][12])
+				pub['L'+'3'+'_'+'2'].publish(self.cmd.position[0][13])
+				pub['L'+'3'+'_'+'3'].publish(self.cmd.position[0][14])
+				pub['L'+'4'+'_'+'1'].publish(self.cmd.position[0][15])
+				pub['L'+'4'+'_'+'2'].publish(self.cmd.position[0][16])
+				pub['L'+'4'+'_'+'3'].publish(self.cmd.position[0][17])  
+
+				(trans,rot) = self.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+				(roll, pitch, yaw_l) = euler_from_quaternion (rot)
+
+			i = i+1     
+
+			if((np.abs((path.poses[(len(path.poses)-1)].pose.position.x) - trans[0]) < 0.7) and (np.abs((path.poses[(len(path.poses)-1)].pose.position.y) - trans[1]) < 0.7)):
+
+				reached = True
+
+			else:
+
+				reached = False     
+
+			if(reached == True):
+
+				self.cpg['move']= False 
+
+			else:
+			
+				self.cpg['move']= True      
+
+			# self.r.sleep()    
 
 
 
+			
+
+
+					
 
 if __name__ == '__main__':
 	
@@ -201,49 +325,49 @@ if __name__ == '__main__':
 	dt = 0.02
 	nIter = round(T/dt)
 	cntr = 0
-
+	# r.sleep()
 	cpg = {
-    'initLength': 250,
-    'w_y': 30.0,
-    'bodyHeight':0.13,
-    'bodyHeightReached':False,
-    'zDist':0,
-    'zHistory':np.ones((1,10)),
-    'zHistoryCnt':0,
-    'direction': np.ones((1,6)),
-    'x':3 * np.array([[.11, -.1, .1, -.01, .12, -.12]]+[[0, 0, 0, 0, 0, 0] for i in range(30000)]),
-    'y':np.zeros((30000+1,6)),
-    'forward': np.ones((1,6)),
-    'backward': -1 * np.ones((1,6)),
-    'leftturn': [1, -1, 1, -1, 1, -1],
-    'rightturn': [-1, 1, -1, 1, -1, 1],
-    'legs': np.zeros((1,18)),
-    'requestedLegPositions': np.zeros((3,6)),
-    'correctedLegPositions': np.zeros((3,6)),
-    'realLegPositions': np.zeros((3,6)),
-    #'smk': smk,
-    'isStance':np.zeros((1,6)),
-    'pose': np.identity(3),
-    'move':True,
-    'groundNorm':np.zeros((1,3)),
-    'groundD': 0,
-    'gravVec':np.zeros((3,1)),
-    'planePoint': [[0], [0], [-1.0]],
-    'theta2':0,
-    'theta3':0,
-    'theta2Trap': 0,
-    'groundTheta':np.zeros((1,30000)),
-    'yOffset':np.zeros((1,6)),
-    'eOffset':np.zeros((1,6)),
-    'theta3Trap': 0,
-    'planeTemp':np.zeros((3,3)),
-    'feetTemp':np.zeros((3,6)),
-    'yReq':0,
-    'o':0,
-    'poseLog':[],
-    'feetLog':[],
-    'planeLog':[]
-    }
+	'initLength': 250,
+	'w_y': 2.0,
+	'bodyHeight':0.13,
+	'bodyHeightReached':False,
+	'zDist':0,
+	'zHistory':np.ones((1,10)),
+	'zHistoryCnt':0,
+	'direction': np.ones((1,6)),
+	'x':3 * np.array([[.11, -.1, .1, -.01, .12, -.12]]+[[0, 0, 0, 0, 0, 0] for i in range(300000)]),
+	'y':np.zeros((300000+1,6)),
+	'forward': np.ones((1,6)),
+	'backward': -1 * np.ones((1,6)),
+	'leftturn': [1, -1, 1, -1, 1, -1],
+	'rightturn': [-1, 1, -1, 1, -1, 1],
+	'legs': np.zeros((1,18)),
+	'requestedLegPositions': np.zeros((3,6)),
+	'correctedLegPositions': np.zeros((3,6)),
+	'realLegPositions': np.zeros((3,6)),
+	#'smk': smk,
+	'isStance':np.zeros((1,6)),
+	'pose': np.identity(3),
+	'move':True,
+	'groundNorm':np.zeros((1,3)),
+	'groundD': 0,
+	'gravVec':np.zeros((3,1)),
+	'planePoint': [[0], [0], [-1.0]],
+	'theta2':0,
+	'theta3':0,
+	'theta2Trap': 0,
+	'groundTheta':np.zeros((1,300000)),
+	'yOffset':np.zeros((1,6)),
+	'eOffset':np.zeros((1,6)),
+	'theta3Trap': 0,
+	'planeTemp':np.zeros((3,3)),
+	'feetTemp':np.zeros((3,6)),
+	'yReq':0,
+	'o':0,
+	'poseLog':[],
+	'feetLog':[],
+	'planeLog':[]
+	}
 
 	
 
@@ -269,10 +393,21 @@ if __name__ == '__main__':
 	controller.cntr = cntr
 
 	controller.t = 0
-	#rospy.init_node('cmd_vel_listener', anonymous=False)
-	rospy.Subscriber("/cmd_vel", Twist, controller.callback,queue_size=4)
+
+	# rospy.init_node('cmd_vel_listener', anonymous=False)
 	
-	#rospy.Rate(1/dt)
 
+	
 
-	rospy.spin()
+	# #rospy.Rate(1/dt)
+
+	# while True:
+	#   rate = rospy.rate(100)
+	while not rospy.is_shutdown():
+		r = rospy.Rate(20)
+		r.sleep()
+		# controller.listener = tf.TransformListener()      
+		rospy.Subscriber("/move_base/NavfnROS/plan", Path, controller.planner,queue_size=1)
+		raw_input("Press Enter to continue...")
+		controller.execute()
+		quit()
