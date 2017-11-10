@@ -163,7 +163,7 @@ if __name__ == '__main__':
 	controller.t = 0
 
 	def planner(path):
-		print("Callback called")
+		# print("Callback called")
 		ind = 0
 		del path_x[:]
 		del path_y[:]
@@ -176,17 +176,23 @@ if __name__ == '__main__':
 
 
 	while not rospy.is_shutdown():
-		rospy.Subscriber("/move_base/NavfnROS/plan", Path, planner,queue_size=1)
-		r = rospy.Rate(20)
+		rospy.Subscriber("/move_base/NavfnROS/plan", Path, planner,queue_size=20)
+		r = rospy.Rate(15)
 		r.sleep()
 		if( path_x != [] and path_y != []):
 
 			(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
 			(roll, pitch, yaw_c) = euler_from_quaternion (rot)
 
-			if((np.abs((path_x[len(path_x)-1]) - trans[0]) < 0.1) and (np.abs((path_y[len(path_y)-1]) - trans[1]) < 0.1)):
+			try:
+				destn_pose = (np.abs((path_x[len(path_x)-1]) - trans[0]) < 0.1) and (np.abs((path_y[len(path_y)-1]) - trans[1]) < 0.1)
+			except:	
+				destn_pose = False
+
+			if(destn_pose):
 
 				reached = True
+
 
 			else:
 
@@ -206,52 +212,16 @@ if __name__ == '__main__':
 			if(reached == False):
 
 				(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+				if( path_x != [] and path_y != []):
+					print(ind)	
 
-				while((np.abs(path_x[ind] - trans[0]) > 0.015) and (np.abs(path_y[ind] - trans[1]) > 0.015) and not rospy.is_shutdown()):
+					next_pos = True
 
-					(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
-					(roll, pitch, yaw_l) = euler_from_quaternion (rot)
-					yaw_c = -1*yaw_l
-
-
-					if((np.abs((path_x[len(path_x)-1]) - trans[0]) < 0.1) and (np.abs((path_y[len(path_y)-1]) - trans[1]) < 0.1)):
-
-						reached = True
-
-					else:
-
-						reached = False
-
-					if(reached == True):
-						del path_x[:]
-						del path_y[:]
-						ind = 0
-						print("reached11")
-						print(path_x)
-						break	
-
-
-					yaw_d = np.arctan2((path_x[ind+3] - trans[0]),(path_y[ind+3] - trans[1])) 
-					yaw_dd = (yaw_d* (180/np.pi))
-					diff = yaw_d - yaw_c
-
-					while((np.abs(diff)) > 0.1 and not rospy.is_shutdown()):
-
-						if(diff > 0):
-
-							controller.cpg['direction']= controller.cpg['rightturn']
-							controller.motion()
-
-						else:
-
-							controller.cpg['direction']= controller.cpg['leftturn'] 
-							controller.motion()
+					while(next_pos and not rospy.is_shutdown()):
 
 						(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
 						(roll, pitch, yaw_l) = euler_from_quaternion (rot)
 						yaw_c = -1*yaw_l
-						diff = (yaw_d - yaw_c) 
-
 
 						if((np.abs((path_x[len(path_x)-1]) - trans[0]) < 0.1) and (np.abs((path_y[len(path_y)-1]) - trans[1]) < 0.1)):
 
@@ -265,18 +235,64 @@ if __name__ == '__main__':
 							del path_x[:]
 							del path_y[:]
 							ind = 0
-							print("reached22")
+							print("reached11")
 							print(path_x)
 							break	
+						if( path_x != [] and path_y != []):	
+							try:
+								yaw_d = np.arctan2((path_x[ind+3] - trans[0]),(path_y[ind+3] - trans[1]))
+							except:
+								yaw_d = yaw_c	 
+							yaw_dd = (yaw_d* (180/np.pi))
+							diff = yaw_d - yaw_c
+						
+							if( path_x != [] and path_y != []):	
+								while((np.abs(diff)) > 0.1 and not rospy.is_shutdown()):
 
-					(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
-					(roll, pitch, yaw_l) = euler_from_quaternion (rot)
-					yaw_c = -1*yaw_l
-					diff = (yaw_d - yaw_c)  
-				
-					controller.cpg['direction']= controller.cpg['forward']
-					controller.motion()  
-					(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
-					(roll, pitch, yaw_l) = euler_from_quaternion (rot)
+									if(diff > 0):
+
+										controller.cpg['direction']= controller.cpg['rightturn']
+										controller.motion()
+
+									else:
+
+										controller.cpg['direction']= controller.cpg['leftturn'] 
+										controller.motion()
+
+									(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+									(roll, pitch, yaw_l) = euler_from_quaternion (rot)
+									yaw_c = -1*yaw_l
+									diff = (yaw_d - yaw_c) 
+
+									if((np.abs((path_x[len(path_x)-1]) - trans[0]) < 0.1) and (np.abs((path_y[len(path_y)-1]) - trans[1]) < 0.1)):
+
+										reached = True
+
+									else:
+
+										reached = False
+
+									if(reached == True):
+										del path_x[:]
+										del path_y[:]
+										ind = 0
+										print("reached22")
+										print(path_x)
+										break	
+
+							(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+							(roll, pitch, yaw_l) = euler_from_quaternion (rot)
+							yaw_c = -1*yaw_l
+							diff = (yaw_d - yaw_c)  
+						
+							controller.cpg['direction']= controller.cpg['forward']
+							controller.motion()  
+							(trans,rot) = controller.listener.lookupTransform('map', 'base_link', rospy.Time(0))
+							(roll, pitch, yaw_l) = euler_from_quaternion (rot)
+
+						try:	
+							next_pos = (np.abs(path_x[ind] - trans[0]) > 0.015) and (np.abs(path_y[ind] - trans[1]) > 0.015)	
+						except:
+							next_pos = True	
 
 				ind = ind +1         
